@@ -1,0 +1,45 @@
+import { useState } from "react";
+import { products } from "../data/products";
+import ProductCard from "../components/products/ProductCard";
+
+function Products() {
+    const [selectedBrand, setSelectedBrand] = useState("All");
+    const brands = ["All", "Sony", "JBL", "Apple", "Samsung"];
+    
+    const filteredProducts = 
+        selectedBrand === "All" ? products : products.filter (
+            (products) => products.brand === selectedBrand
+        );
+
+  return (
+    <div className="max-w-7xl mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">
+            Nos produits
+        </h1>
+        
+        <div className="flex gap-4 mb-8 flex-wrap">
+            {brands.map((brand) => (
+                <button
+                    key={brand}
+                    onClick={() => setSelectedBrand(brand)}
+                    className={`px-4 py-2 rounded border ${ selectedBrand === brand ? "bg-blue-600 text-white" : "bg-white text-gray-600" }`}
+                >
+                    {brand}
+                </button>
+            ))}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {filteredProducts.map((product) => (
+                <ProductCard 
+                    key={product.id}
+                    product={product} 
+                /> 
+
+            ))}
+        </div>
+    </div>
+  );
+}
+
+export default Products;

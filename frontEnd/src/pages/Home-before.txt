@@ -1,0 +1,56 @@
+
+import ProductCard from "../components/products/ProductCard"
+
+const products = [
+    {
+        id: 1,
+        name: "Sony WH-1000XM5",
+        brand: "Sony",
+        price: 349,
+        image: "/assets/images/sony.jpg",
+    },
+    {
+        id: 3,
+        name: "AirPods Pro",
+        brand: "Apple",
+        price: 279,
+        image: "/assets/images/Airpods.avif",
+    },
+    {
+        id: 4,
+        name: "Beats Studio Pro",
+        brand: "Beats",
+        price: 149,
+        image: "/assets/images/BeatsStudioPro.jpg",
+    },
+    {
+        id: 5,
+        name: "Sennheiser Momentum 4",
+        brand: "Sennheiser",
+        price: 149,
+        image: "/assets/images/sennheiser.jpg",
+    }
+]
+
+function Home() {
+  return (
+    <div className="max-w-7xl p-6 mx-auto px-4 py-10">
+        <section className="text-center mb-12"> 
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
+                Bienvenue sur BeatStore !
+            </h1>
+            <p className="mt-4 text-gray-600">
+                Découvrez nos meilleurs casques et écouteurs audio premium.
+            </p>
+        </section>
+
+        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+            ))}
+        </section>
+    </div>
+  )
+}
+
+export default Home

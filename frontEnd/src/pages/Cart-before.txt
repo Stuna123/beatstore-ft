@@ -1,0 +1,69 @@
+// Version 1 : 
+import { useCart } from "../context/CartContext"
+
+function Cart() {
+    const { cartItems = [], removeFromCart } = useCart()
+    if(cartItems.length === 0) {
+        console.log(cartItems)
+        return (
+            <p className="text-center mt-20 text-xl"> Votre panier est vide </p>
+        )
+    }
+
+    const total = cartItems.reduce(
+        (sum, item) => sum + item.product.price * item.quantity, 0
+    )
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6">Panier</h1>
+
+        {cartItems.map((item) => (
+            <div 
+                key={item.product._id}
+                className="flex items-center justify-between border-b py-4"
+            >
+                <div>
+                    <h2 className="font-semibold"> {item.product.name} </h2>
+                    <h2 className="text-gray-600"> {item.product.price} € x {item.quantity}</h2>
+                </div>
+
+                <button
+                    onClick={() => removeFromCart(item.product._id)}
+                    className="text-red-600"
+                >
+                    Supprimer
+                </button>
+
+            </div>
+        ))}
+        <p className="text-xl font-bold mt-6"> Total : {total.toFixed(2)} €</p>
+    </div>
+  )
+}
+
+export default Cart;
+
+Version 2 : 
+On ajoute ce code 
+import api from "../services/api";
+
+const handleCheckout = async () => {
+  try {
+    const res = await api.post("/payments/create-checkout-session");
+    window.location.href = res.data.url;
+  } catch (error) {
+    console.error("Erreur paiement", error);
+    alert("Erreur lors du paiement");
+  }
+};
+
+Et dans return () : 
+<button
+  onClick={handleCheckout}
+  className="mt-6 bg-green-600 text-white px-6 py-3 rounded"
+>
+  Payer
+</button>
+
+Voici le code complet : 

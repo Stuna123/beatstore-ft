@@ -1,0 +1,166 @@
+//import { populate } from "dotenv";
+import Cart from "../models/Cart.js";
+
+//* Get user cart
+export const getCart = async (req, res) => {
+    let cart = await Cart.findOne({ user: req.user._id }).populate(
+        "items.product"
+    )
+
+    if(!cart) {
+        cart = await Cart.create({ user: req.user._id, items: [] })
+    }
+
+    res.json(cart)
+};
+
+
+//* Add to cart
+export const addToCart = async (req, res) => {
+    const { productId, quantity } = req.body;
+
+    let cart = await Cart.findOne({ user: req.user._id });
+    if(!cart) {
+        cart = await Cart.create({ user: req.user._id, items: [] });
+    }
+
+    const itemIndex = cart.items.findIndex(
+        (item) => item.product.toString() === productId
+    )
+
+    if(itemIndex > -1) {
+        cart.items[itemIndex].quantity += quantity
+    } else {
+        cart.items.push({ product: productId, quantity })
+    }
+
+    await cart.save();
+
+    const populateCart = await cart.populate("items.product")
+    res.json(populateCart);
+}
+
+//* Remove item
+export const removeFromCart = async (req, res) => {
+
+    const cart = await Cart.findOne({ user: req.user._id })
+
+    if(!cart) {
+        return res.status(404).json({ message: "Panier introuvable !" })
+    }
+
+    cart.items = cart.items.filter(
+        (item) => item.product.toString() !== req.params.productId 
+    )
+
+    await cart.save();
+
+    const populateCart = await cart.populate("items.product")
+    res.json(populateCart);
+}
+
+//* Supprimer un produit par unité
+export const decrementItem = async (req, res) => {
+  const { productId } = req.params;
+
+  const cart = await Cart.findOne({ user: req.user.id });
+
+  if (!cart) return res.status(404).json({ message: "Panier introuvable" });
+
+  const item = cart.items.find(
+    (i) => i.product.toString() === productId
+  );
+
+  if (!item) {
+    return res.status(404).json({ message: "Produit non trouvé" });
+  }
+
+  if (item.quantity > 1) {
+    item.quantity -= 1;
+  } else {
+    cart.items = cart.items.filter(
+      (i) => i.product.toString() !== productId
+    );
+  }
+
+  await cart.save();
+  res.json(cart);
+};
+
+export const clearCart = async (req, res) => {
+  const cart = await Cart.findOne({ user: req.user.id });
+
+  if (!cart) return res.json({ items: [] });
+
+  cart.items = [];
+  await cart.save();
+
+  res.json(cart);
+};
+
+
+/**
+ * 
+ *  Opesi nga pema na yembeli yo, papa na ngayi nakumisi yo ooh ozali Nzambe na ngaaa 
+ *  N'kolo na bomoi obonguani tse, papa na ngayi na yembeli yoo ozali Nzambe na ngaaa
+ *  N'kolo na pema na pesi melesii, ngayi na kumusi yoo ozali Nzambe na nga
+ * 
+ *  Ale
+ *  nakati ya zamba yo nzete na bomoi
+ *  nakati ya mayi yo mayi na bomoi
+ *  nakati ya moto yo feu devorant
+ *  
+ *  nakati ya batu yo fils de l'homme
+ *  nakati yaba niama yo n'kosi na Yuda
+ *  tika ngayi na sanjola yooo
+ * Ameeeen
+ *  bongo nakati yaba nioka yo serpent d'airain
+ *  N'kolo na nga netola yo, N'kolo na nga sanjola yo
+ *  N'kolo Yesuu Ehhhh
+ *  bongo ba mage ba moni mozonto yango, bayé ko ngumamela yeee
+ *  Mokonzi yaba konzi nionso
+
+ */
+
+export const decrementItem = async (req, res) => {
+  const cart = await Cart.findOne({ user: req.user.id });
+
+  if (!cart) return res.status(404).json({ message: "Panier introuvable" });
+
+  const item = cart.items.find(
+    (i) => i.product.toString() === req.params.productId
+  );
+
+  if (!item) return res.status(404).json({ message: "Produit introuvable" });
+
+  if (item.quantity > 1) {
+    item.quantity -= 1;
+  } else {
+    cart.items = cart.items.filter(
+      (i) => i.product.toString() !== req.params.productId
+    );
+  }
+
+  await cart.save();
+  await cart.populate("items.product");
+
+  res.json(cart);
+};
+
+export const incrementItem = async (req, res) => {
+  const cart = await Cart.findOne({ user: req.user.id });
+
+  const item = cart.items.find(
+    (i) => i.product.toString() === req.params.productId
+  );
+
+  if (!item) return res.status(404).json({ message: "Produit introuvable" });
+
+  item.quantity += 1;
+
+  await cart.save();
+  await cart.populate("items.product");
+
+  res.json(cart);
+};
+

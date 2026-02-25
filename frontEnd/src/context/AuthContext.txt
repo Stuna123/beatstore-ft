@@ -1,0 +1,68 @@
+Avant mise à jour : 
+import { createContext, useContext, useState } from 'react'
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  
+  const login = (email) => {
+    setUser({
+        email,
+        role: "user"
+    })
+  }
+  const logout = () => {
+    setUser(null)
+  }
+
+  const isAuthentificated = !!user;
+
+    return (
+    <AuthContext.Provider
+        value={{ user, login, logout, isAuthentificated}}
+    >
+        { children }
+    </AuthContext.Provider>
+  )
+}
+
+export const useAuth = () => {
+    return useContext(AuthContext);
+}
+
+Après mise à jour :
+import { createContext, useContext, useState } from "react";
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  // exemple user : { email, role: "user" | "admin" }
+
+  const login = (email, password) => {
+    // simulation backend
+    const fakeUser = {
+      email,
+      role: email === "admin@test.com" ? "admin" : "user",
+    };
+    setUser(fakeUser);
+  };
+
+  const logout = () => {
+    setUser(null);
+  };
+
+  const isAuthenticated = !!user;
+  const isAdmin = user?.role === "admin";
+
+  return (
+    <AuthContext.Provider
+      value={{ user, login, logout, isAuthenticated, isAdmin }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);

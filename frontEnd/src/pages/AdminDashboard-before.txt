@@ -1,0 +1,708 @@
+// Version 1
+    import api from "../services/api";
+    import { useEffect, useState } from "react";
+
+    function AdminDashboard() { 
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        api.get("/products").then((res) => {
+        setProducts(res.data.data || [])
+        }); 
+    }, []);
+
+    return (
+        <div className="p-6">
+        <h1 className="text-3xl font-bold mb-4">
+            Admin Dashboard
+        </h1>
+
+        <p className="text-gray-600">
+            Bienvenue dans l’espace administrateur.
+        </p>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="p-4 border rounded-lg">
+            <h2 className="font-semibold">Produits</h2>
+            <p>Gérer les produits</p>
+            </div>
+
+            <div className="p-4 border rounded-lg">
+            <h2 className="font-semibold">Utilisateurs</h2>
+            <p>Voir les comptes</p>
+            </div>
+
+            <div className="p-4 border rounded-lg">
+            <h2 className="font-semibold">Commandes</h2>
+            <p>Suivi des ventes</p>
+                {Array.isArray(products) && products.map((p) => (
+                <p key={p._id}> {p.name} </p>
+                ))}
+            </div>
+        </div>
+
+        </div>
+    )
+    }
+
+    export default AdminDashboard
+
+-----
+
+// Version 2 :
+    import api from "../services/api";
+    import { useEffect, useState } from "react";
+
+    function AdminDashboard() {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    const [form, setForm] = useState({
+        name: "",
+        brand: "",
+        price: "",
+        image: "",
+    });
+
+    // ========================
+    // FETCH PRODUCTS
+    // ========================
+    const fetchProducts = async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+        const res = await api.get("/products");
+        setProducts(res.data.data || []);
+        } catch (err) {
+        console.error(err);
+        setError("Erreur lors du chargement des produits");
+        } finally {
+        setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    // ========================
+    // ADD PRODUCT
+    // ========================
+    const handleAddProduct = async (e) => {
+        e.preventDefault();
+
+        if (!form.name || !form.price) {
+        alert("Nom et prix requis");
+        return;
+        }
+
+        try {
+        await api.post("/products", {
+            ...form,
+            price: Number(form.price),
+        });
+
+        setForm({
+            name: "",
+            brand: "",
+            price: "",
+            image: "",
+        });
+
+        fetchProducts();
+        } catch (err) {
+        console.error(err);
+        alert("Erreur lors de l’ajout du produit");
+        }
+    };
+
+    // ========================
+    // DELETE PRODUCT
+    // ========================
+    const handleDelete = async (id) => {
+        if (!window.confirm("Supprimer ce produit ?")) return;
+
+        try {
+        await api.delete(`/products/${id}`);
+        fetchProducts();
+        } catch (err) {
+        console.error(err);
+        alert("Erreur lors de la suppression");
+        }
+    };
+
+    return (
+        <div className="p-6 max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+        <p className="text-gray-500 mb-8">Gestion de la boutique</p>
+
+        {/* ================= STATS ================= */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <StatCard title="Produits" value={products.length} />
+            <StatCard title="Utilisateurs" value="—" />
+            <StatCard title="Commandes" value="—" />
+        </div>
+
+        {/* ================= ADD PRODUCT FORM ================= */}
+        <section className="mb-10">
+            <h2 className="text-xl font-semibold mb-4">Ajouter un produit</h2>
+
+            <form
+            onSubmit={handleAddProduct}
+            className="grid grid-cols-1 md:grid-cols-4 gap-3"
+            >
+            <input
+                placeholder="Nom"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="border p-2 rounded"
+            />
+
+            <input
+                placeholder="Marque"
+                value={form.brand}
+                onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                className="border p-2 rounded"
+            />
+
+            <input
+                type="number"
+                placeholder="Prix"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                className="border p-2 rounded"
+            />
+
+            <input
+                placeholder="Image (ex: produit.jpg)"
+                value={form.image}
+                onChange={(e) => setForm({ ...form, image: e.target.value })}
+                className="border p-2 rounded"
+            />
+
+            <button className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 md:col-span-4">
+                Ajouter le produit
+            </button>
+            </form>
+        </section>
+
+        {/* ================= PRODUCT LIST ================= */}
+        <section>
+            <h2 className="text-xl font-semibold mb-4">Produits</h2>
+
+            {loading && <p>Chargement…</p>}
+            {error && <p className="text-red-500">{error}</p>}
+
+            {!loading && products.length === 0 && (
+            <p>Aucun produit enregistré</p>
+            )}
+
+            <div className="space-y-3">
+            {products.map((p) => (
+                <div
+                key={p._id}
+                className="flex justify-between items-center border p-3 rounded"
+                >
+                <div>
+                    <p className="font-medium">{p.name}</p>
+                    <p className="text-sm text-gray-500">
+                    {p.brand} • {p.price} €
+                    </p>
+                </div>
+
+                <div className="flex gap-3">
+                    <button className="text-blue-600 hover:underline">
+                    Modifier
+                    </button>
+
+                    <button
+                    onClick={() => handleDelete(p._id)}
+                    className="text-red-600 hover:underline"
+                    >
+                    Supprimer
+                    </button>
+                </div>
+                </div>
+            ))}
+            </div>
+        </section>
+        </div>
+    );
+    }
+
+    const StatCard = ({ title, value }) => (
+    <div className="border rounded-lg p-4">
+        <p className="text-gray-500">{title}</p>
+        <p className="text-2xl font-bold">{value}</p>
+    </div>
+    );
+
+    export default AdminDashboard;
+
+-----
+
+Version 3 : 
+import api from "../services/api";
+import { useEffect, useState } from "react";
+
+const ITEMS_PER_PAGE = 5;
+
+function AdminDashboard() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({});
+
+  const [form, setForm] = useState({
+    name: "",
+    brand: "",
+    price: "",
+    image: "",
+  });
+
+  // ================= FETCH =================
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/products");
+      setProducts(res.data.data || []);
+    } catch (err) {
+      setError("Erreur chargement produits", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // ================= ADD =================
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+
+    try {
+      await api.post("/products", {
+        ...form,
+        price: Number(form.price),
+      });
+
+      setForm({ name: "", brand: "", price: "", image: "" });
+      fetchProducts();
+    } catch {
+      alert("Erreur ajout produit");
+    }
+  };
+
+  // ================= DELETE =================
+  const handleDelete = async (id) => {
+    if (!confirm("Supprimer ce produit ?")) return;
+
+    await api.delete(`/products/${id}`);
+    fetchProducts();
+  };
+
+  // ================= EDIT =================
+  const startEdit = (product) => {
+    setEditingId(product._id);
+    setEditForm(product);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({});
+  };
+
+  const saveEdit = async () => {
+    await api.put(`/products/${editingId}`, {
+      ...editForm,
+      price: Number(editForm.price),
+    });
+
+    cancelEdit();
+    fetchProducts();
+  };
+
+  // ================= SEARCH =================
+  const filteredProducts = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.brand.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // ================= PAGINATION =================
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+
+      {/* ADD PRODUCT */}
+      <section className="mb-10">
+        <h2 className="font-semibold mb-3">Ajouter un produit</h2>
+        <form
+          onSubmit={handleAddProduct}
+          className="grid grid-cols-1 md:grid-cols-4 gap-3 dark:text-black"
+        >
+          <input placeholder="Nom" value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="border p-2 rounded"
+          />
+          <input placeholder="Marque" value={form.brand}
+            onChange={(e) => setForm({ ...form, brand: e.target.value })}
+            className="border p-2 rounded"
+          />
+          <input type="number" placeholder="Prix" value={form.price}
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
+            className="border p-2 rounded"
+          />
+          <input placeholder="Image" value={form.image}
+            onChange={(e) => setForm({ ...form, image: e.target.value })}
+            className="border p-2 rounded"
+          />
+          <button className="bg-blue-600 text-white rounded md:col-span-4 p-2">
+            Ajouter
+          </button>
+        </form>
+      </section>
+
+      {/* SEARCH */}
+      <input
+        placeholder="Rechercher un produit…"
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(1);
+        }}
+        className="border p-2 rounded mb-4 w-full dark:text-black"
+      />
+
+      {/* LIST */}
+      {paginatedProducts.map((p) => (
+        <div key={p._id} className="border p-3 rounded mb-2 flex justify-between">
+        
+          {editingId === p._id ? (
+            <div className="flex gap-2 w-full dark:text-black">
+              <input
+                value={editForm.name}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, name: e.target.value })
+                }
+                className="border p-1 rounded flex-1"
+              />
+              <input
+                value={editForm.price}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, price: e.target.value })
+                }
+                className="border p-1 rounded w-24"
+              />
+              <button onClick={saveEdit} className="text-green-600">
+                Sauver
+              </button>
+              <button onClick={cancelEdit} className="text-gray-500">
+                Annuler
+              </button>
+            </div>
+          ) : (
+            <>
+              <div>
+                <p className="font-medium">{p.name}</p>
+                <p className="text-sm text-gray-500">
+                  {p.brand} • {p.price} €
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => startEdit(p)}
+                  className="text-blue-600"
+                >
+                  Modifier
+                </button>
+                <button
+                  onClick={() => handleDelete(p._id)}
+                  className="text-red-600"
+                >
+                  Supprimer
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+
+      {/* PAGINATION */}
+      <div className="flex justify-center gap-4 mt-6">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+        >
+          ← Précédent
+        </button>
+        <span>
+          Page {page} / {totalPages}
+        </span>
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Suivant →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default AdminDashboard;
+
+********
+
+import api from "../services/api";
+import { useNavigate } from "react-router-dom"
+import React, { useEffect, useState } from 'react';
+
+// Element pour la pagination
+const ITEMS_PER_PAGE = 5;
+
+function AdminDashboard() {
+
+  // Initialisation ou déclaration des variables
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const[editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({});
+
+  const[form, setForm] = useState({
+    name: "", 
+    brand: "", 
+    price: "", 
+    image: "",
+  })
+
+  const navigate = useNavigate();
+  // Fetch
+  const fetchProducts = async () => {
+    try {
+      setLoading(false);
+      const res = await api.get("/products");
+      setProducts(res.data.data || [])
+    } catch (error) {
+      setError("Erreur lors du chargement des produits: ", error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+
+  // Ajouter un produit
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+
+    try {
+      await api.post("/products", {
+        ...form,
+        price: Number(form.price)
+      })
+
+      setForm({
+        name: "",
+        brand: "",
+        price: "",
+        image: ""
+      })
+    } catch {
+      alert("Erreur lors de l'ajout du produit")
+    }
+
+    navigate("/")
+  }
+
+  // Modifier un produit
+  const startEdit = (product) => {
+    setEditingId(product._id)
+    setEditForm(product)
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm([]);
+  }
+
+  const saveEdit = async () => {
+    await api.put(`/products/${editingId}`, {
+      ...editForm,
+      price: Number(editForm.price)
+    })
+
+    cancelEdit();
+    fetchProducts();
+  }
+
+  // Supprimer un produit
+  const handleDelete = async (id) => {
+    if(!confirm("Voulez-vous supprimer ce produit ?")) return;
+
+    await api.delete(`/products/${id}`)
+    fetchProducts();
+
+    navigate("/")
+  }
+
+  // Rechercher un produit
+  const filteredProducts = products.filter(
+    (p) => 
+      p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Pagination
+    const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+    const paginatedProducts = filteredProducts.slice(
+      (page - 1) * ITEMS_PER_PAGE,
+      page * ITEMS_PER_PAGE
+    )
+
+  // Message d'information
+  if(loading) return <p className="text-center mt-20">Chargement des produits...</p>
+  if(error) return <p className="text-center mt-20 text-red-700">{error}</p>
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6"> Admin Dashboard </h1>
+
+      {/* Ajout du produit */}
+      <section className="mb-10">
+        <h2 className="font-semibold mb-3"> Ajouter un produit</h2>
+        
+       <form 
+          onSubmit={handleAddProduct}
+          className="grid grid-cols-1 md:grid-cols-4 gap-3 dark:text-black"
+        >
+          <input placeholder="Nom" value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })} 
+            className="border p-2 rounded"
+          />
+          <input placeholder="Marque" value={form.brand} 
+            onChange={(e) => setForm({ ...form, brand: e.target.value})}
+            className="border p-2 rounded"
+          />
+          <input type="number" placeholder="Prix" value={form.price} 
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
+            className="border p-2 rounded"
+          />
+          <input placeholder="Image (ex: sony.jpg)" value={form.image} 
+            onChange={(e) => setForm({ ...form, image: e.target.value })}
+            className="border p-2 rounded"
+          />
+          <button className="bg-blue-600 text-white rounded md:col-span-4 p-2">
+            Ajouter le produit
+          </button>
+        </form>
+      </section>
+
+      {/* Recherche */}
+      <input 
+        placeholder="Rechercher un produit..." 
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value)
+          setPage(1)
+        }}
+        className="border p-2 rounded mb-8 w-full dark:text-black"
+      />
+
+      {/* Liste */}
+      {paginatedProducts.map((p) => (
+        <div key={p._id} className="border p-3 rounded mb-2 flex justify-between">
+          {editingId === p._id ? (
+            <div className="flex gap-2 w-full dark:text-black">
+              <input 
+                value={editForm.name}
+                onChange={(e) => setForm({ ...editForm, name: e.target.value })} 
+                className="border p-1 rounded flex-1"
+              />
+
+              <input 
+                value={editForm.price}
+                onChange={(e) => setForm({ ...editForm, price: e.target.value})} 
+                className="border p-1 rounded w-24"
+              />
+
+              <button onClick={saveEdit} className="text-green-600">
+                Sauver
+              </button>
+              <button onClick={cancelEdit} className="text-gray-500">
+                Annuler
+              </button>
+            </div>
+          ) : (
+            <>
+              <div>
+                <p className="font-medium"> {p.name} </p>
+                <p className="text-sm text-gray-500"> 
+                  {p.brand} • {p.price} € 
+                  </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => startEdit(p)}
+                  className="text-blue-600"
+                >
+                  Modifier
+                </button>
+                <button
+                  onClick={() => handleDelete(p._id)}
+                  className="text-red-600"
+                > 
+                  Supprimer
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+      
+      {/* Pagination */}
+      <div className="flex justify-center gap-4 mt-6">
+        <button 
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}  
+        >
+          ← Précédent
+        </button>
+        <span>
+          Page {page} / {totalPages}
+        </span>
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Suivant →
+        </button>
+      </div>
+
+    </div>
+  )
+}
+
+export default AdminDashboard

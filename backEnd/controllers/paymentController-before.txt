@@ -1,0 +1,130 @@
+/* eslint-disable no-undef */
+import Stripe from "stripe";
+import Order from "../models/Order.js";
+import Cart from "../models/Cart.js";
+
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+
+//* @desc Create Stripe checkout session
+//* @route POST /api/payments/create-session
+//* @access Private
+
+export const createCheckoutSession = async (req, res) => {
+    try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+        const { orderId } = req.body;
+
+        const order = await Order.findById(orderId).populate("items.product")
+
+        if(!order) {
+            return res.status(404).json({ message: "Votre commande est introuvable" })
+        }
+
+        // éviter un double paiement
+        if( order.status === "paid") {
+            return res.status(400).json({ message: "La commande est déjà payée !" })
+        }
+
+        const line_items = order.items.map((item) => ({
+            price_data: {
+                currency: "eur",
+                product_data: {
+                    name: `Produit BeatStore - ${item.quantity} article(s)`,
+                },
+                unit_amount: Math.round(item.price * 100),
+            },
+            quantity: item.quantity,
+        }));
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            mode: "payment",
+            line_items,
+            success_url: "http://localhost:5173/success",
+            cancel_url: "http://localhost:5173/cancel",
+            metadata: {
+                orderId: order._id.toString(),
+            }
+        });
+
+        res.json({ url: session.url });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Erreur Stripe" })
+    }
+/*
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+
+    const { orderId } = req.body;
+
+    const order = await Order.findById(orderId).populate("items.product")
+
+    if(!order) {
+        return res.status(404).json({ message: "Votre commande est introuvable" })
+    }
+
+    const line_items = order.items.map((item) => ({
+        price_data: {
+            currency: "eur",
+            product_data: {
+                name: `Produit BeatStore - ${item.quantity} article(s)`,
+            },
+            unit_amount: Math.round(item.price * 100),
+        },
+        quantity: item.quantity,
+    }));
+
+    const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items,
+        success_url: "http://localhost:5173/success",
+        cancel_url: "http://localhost:5173/cancel",
+        metadata: {
+            orderId: order._id.toString(),
+        }
+    });
+
+    res.json({ url: session.url });
+    */
+}
+
+------
+Version 2 : 
+import Stripe from "stripe";
+import Cart from "../models/Cart.js";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+export const createCheckoutSession = async (req, res) => {
+  const cart = await Cart.findOne({ user: req.user.id })
+    .populate("items.product");
+
+  if (!cart || cart.items.length === 0) {
+    return res.status(400).json({ message: "Panier vide" });
+  }
+
+  const line_items = cart.items.map((item) => ({
+    price_data: {
+      currency: "eur",
+      product_data: {
+        name: item.product.name,
+      },
+      unit_amount: Math.round(item.product.price * 100),
+    },
+    quantity: item.quantity,
+  }));
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items,
+    mode: "payment",
+    success_url: "http://localhost:5173/success",
+    cancel_url: "http://localhost:5173/cart",
+    metadata: {
+      userId: req.user.id,
+    },
+  });
+
+  res.json({ url: session.url });
+};
