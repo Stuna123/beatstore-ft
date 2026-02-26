@@ -21,7 +21,10 @@ connectDB()
 const app = express();
 
 // middlewares globaux
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true
+}));
 app.post(
     "/api/payments/webhook", 
     express.raw({ type: "application/json" }), 
