@@ -24,7 +24,7 @@ function ProductCard({ product }) {
         )}
         <div className="w-full h-80 overflow-hidden rounded">
             <img 
-                src={`http://localhost:5000/images/${product.image}`} 
+                src={`${import.meta.env.VITE_UPLOAD_URL}/images/${product.image}`} 
                 alt={product.name} 
                 className="w-full h-full object-cover"
             />            
