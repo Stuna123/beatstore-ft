@@ -36,12 +36,13 @@ export default Success;
 */
 
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import api from "../services/api";
 
 function Success() {
   const { setCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const refreshCart = async () => {
