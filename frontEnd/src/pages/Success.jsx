@@ -45,22 +45,33 @@ function Success() {
 
   useEffect(() => {
     const refreshCart = async () => {
-      const res = await api.get("/cart");
-      setCart(res.data);
+      try {
+        const res = await api.get("//cart");
+        setCart(res.data);
+      } catch (error) {
+        console.error("Erreur refresh panier", error);
+      }
     };
 
     refreshCart();
-  }, [setCart]);
+
+    // rediction automatique
+    const timer = setTimeout(() => {
+        navigate("/");
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [setCart, navigate]);
 
   return (
     <div className="p-10 text-center">
       <h1 className="text-3xl font-bold text-green-600">
-        Paiement réussi 🎉
+        Paiement réussi avec succès !
       </h1>
-      <p className="mt-4">Merci pour votre commande !</p>
+      <p className="mt-4">Merci pour votre commande ! Redirection...</p>
       <Link 
           to="/"
-          className="mt-3 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+          className="mt-6 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
       >
           Retour à l'accueil !
       </Link>
