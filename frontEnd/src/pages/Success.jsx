@@ -47,7 +47,7 @@ function Success() {
   useEffect(() => {
     const refreshCart = async () => {
       try {
-        const res = await api.get("//cart");
+        const res = await api.get("/cart");
         setCart(res.data);
       } catch (error) {
         console.error("Erreur refresh panier", error);
@@ -69,13 +69,7 @@ function Success() {
       <h1 className="text-3xl font-bold text-green-600">
         Paiement réussi avec succès !
       </h1>
-      <p className="mt-4">Merci pour votre commande ! Redirection...</p>
-      <Link 
-          to="/"
-          className="mt-6 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-      >
-          Retour à l'accueil !
-      </Link>
+      <p className="mt-4">Merci pour votre commande ! Redirection à l'accueil...</p>
     </div>
   );
 }

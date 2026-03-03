@@ -20,6 +20,7 @@ import Cancel from "../pages/Cancel"
 
 // import PrivateRouteUser from "../components/PrivateRouteUser"
 import Dashboard from "../pages/Dashboard"
+import PageNotFound from "../pages/PageNotFound"
 
 const AppRoutes = () => {
   return (
@@ -29,7 +30,7 @@ const AppRoutes = () => {
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
-
+        <Route path="*" element= {<PageNotFound />} />
 
         <Route path="/cart" element={ 
             <PrivateRoute>

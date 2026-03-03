@@ -25,7 +25,7 @@ const Footer = () => {
         <ul className="flex flex-wrap items-center gap-4 text-sm font-medium text-gray-500 dark:text-gray-400">
           <li>
             <NavLink
-              to="https://portfolio-ftab.netlify.app/"
+              to="https://portfolioftab.netlify.app/"
               target="_blank"
               rel="noreferrer"
               className="hover:text-blue-500 transition"
@@ -36,7 +36,7 @@ const Footer = () => {
 
           <li>
             <NavLink
-              to="https://github.com/Stuna123"
+              to="https://github.com/Stuna123/beatstore-ft"
               target="_blank"
               rel="noreferrer"
               className="hover:text-blue-500 transition"

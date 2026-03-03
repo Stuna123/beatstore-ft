@@ -12,6 +12,7 @@ import Cart from "../models/Cart.js";
 export const createCheckoutSession = async (req, res) => {
     try {
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+        console.log("CLIENT_URL =", process.env.CLIENT_URL);
         // const { orderId } = req.body;
         // const order = await Order.findById(orderId).populate("items.product")
         const cart = await Cart.findOne({ user: req.user.id }).populate("items.product")
@@ -47,6 +48,7 @@ export const createCheckoutSession = async (req, res) => {
             }
         });
 
+        console.log("CLIENT_URL =", process.env.CLIENT_URL);
         res.json({ url: session.url });
     } catch (error) {
         console.log(error);
