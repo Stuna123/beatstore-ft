@@ -93,7 +93,7 @@ export const webhookStripe = async (req, res) => {
         return res.status(400).send(`Webhook Error: ${error.message}`);
     }
 
-  if (event.type === "checkout.session.completed" && ) {
+  if (event.type === "checkout.session.completed" && event.data.object.payment_status === "paid" ) {
     const session = event.data.object;
     const userId = session.metadata.userId;
     const paidItemsIds = JSON.parse(session.metadata.paidItems || "[]");
