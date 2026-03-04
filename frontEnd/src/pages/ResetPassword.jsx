@@ -1,21 +1,39 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import api from "../services/api";
 
 function ResetPassword() {
     const { token } = useParams();
+    const navigate = useNavigate();
+
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        setError("");
+        setMessage("");
+
+        if(password.length < 6) {
+          setError("Le mot de passe doit contenir au moins 6 caractères.")
+          return;
+        }
+
         try {
-            await api.put(`/auth/reset-password/${token}`, { password });
-            setMessage("Le mot de passe a été mise à jour")
+          setLoading(true);
+
+          await api.put(`/auth/reset-password/${token}`, { password });
+          setMessage("Le mot de passe a été mise à jour avec succès ! Redirection...");
+          setTimeout(() => {
+            navigate("/login");
+          }, 4000);
         } catch(err) {
             setError(err.response?.data?.message || "Erreur serveur")
+        } finally {
+          setLoading(false);
         }
     }
 
@@ -32,16 +50,20 @@ function ResetPassword() {
                         type="password" 
                         placeholder="Nouveau mot de passe" 
                         value={password} 
-                        onChange={(e) => setPassword(e.target.value)}    
+                        onChange={(e) => setPassword(e.target.value)} 
+                        disabled={loading}   
                     />
-                    <button className="bg-blue-600 hover:bg-blue-800 w-full py-2 rounded">
-                        Valider
+                    <button 
+                      className="bg-blue-600 hover:bg-blue-800 text-white w-full py-2 rounded disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      {loading ? "Mise à jour..." : "Valider"}
                     </button>
                 </form>
 
                 <p className="text-center mt-4 text-sm">
                 <Link to="/login" className="text-blue-600">
-                    Retour à la connexion
+                  Retour à la connexion
                 </Link>
                 </p>
             </div>

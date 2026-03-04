@@ -77,7 +77,7 @@ export const forgotPassword = async (req, res) => {
         const user = await User.findOne({ email });
 
         if(!user) {
-            return res.status(404).json({ message: "Aucun utilisaateur trouvé !" })
+            return res.status(404).json({ message: "Si un compte existe, un email a été envoyé." })
         }
 
         // Générer token brut
@@ -96,7 +96,7 @@ export const forgotPassword = async (req, res) => {
 
         await user.save();
 
-        const resetURL = `http://localhost:5173/reset-password/${resetToken}`;
+        const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -120,7 +120,7 @@ export const forgotPassword = async (req, res) => {
                 <a href="${resetURL}"> ${resetURL} </a>
             `,
         });
-        res.json({ message: "Email envoyé avec succès !" });
+        res.json({ message: "Si un compte existe, un email a été envoyé." });
 
     } catch (error) {
         res.status(500).json({message: error.message })

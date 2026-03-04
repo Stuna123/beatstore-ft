@@ -69,7 +69,8 @@ function Success() {
       <h1 className="text-3xl font-bold text-green-600">
         Paiement réussi avec succès !
       </h1>
-      <p className="mt-4">Merci pour votre commande ! Redirection à l'accueil...</p>
+      <p className="mt-4">Merci pour votre commande ! </p>
+      <p> Redirection à l'accueil... </p>
     </div>
   );
 }
