@@ -1,4 +1,4 @@
-import PageNotFoundImage from "../assets/pagenotfound.png";
+import PageNotFoundImage from "../../public/assets/pagenotfound.png"
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 
