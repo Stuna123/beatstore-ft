@@ -42,7 +42,7 @@ function ProductDetails() {
   return (
     <div className="max-w-4xl mx-auto p-6 text-center">
       <img
-        src={`http://localhost:5000/images/${product.image}`}
+        src={`${import.meta.env.VITE_UPLOAD_URL}/images/${product.image}`}
         alt={product.name}
         className="h-64 mx-auto object-contain mb-6"
       />
