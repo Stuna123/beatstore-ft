@@ -1,16 +1,132 @@
-# React + Vite
+## BeatStore — Fullstack MERN E-Commerce (Stripe Integrated)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+BeatStore est une application e-commerce fullstack permettant la vente de beats musicaux avec authentification, gestion panier, wishlist et paiement sécurisé via Stripe.
 
-Currently, two official plugins are available:
+🔗 Live Demo : [https://beatstore-ft.netlify.app](https://beatstore-ft.netlify.app)
+🔗 Backend API : [https://beatstore-backend.onrender.com](https://beatstore-backend.onrender.com)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 Stack Technique
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
 
-## Expanding the ESLint configuration
+* React (Vite)
+* React Router
+* Context API
+* TailwindCSS
+* Axios
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend
+
+* Node.js
+* Express
+* MongoDB
+* Mongoose
+* JWT Authentication
+* Stripe Checkout + Webhooks
+
+### Déploiement
+
+* Frontend : Netlify
+* Backend : Render
+* Paiement : Stripe (mode test)
+
+---
+
+## ✨ Fonctionnalités
+
+* Authentification (Register / Login)
+* Gestion panier dynamique
+* Wishlist live counter
+* Dashboard utilisateur
+* Dashboard admin
+* Paiement sécurisé Stripe
+* Webhook Stripe pour validation commande
+* Page 404 personnalisée
+* Responsive design
+* Déploiement production ready
+
+---
+
+## 💳 Stripe Integration
+
+* Création session checkout
+* Redirection success / cancel
+* Webhook sécurisé
+* Vérification signature Stripe
+* Synchronisation panier après paiement
+
+---
+
+## 🛠 Installation locale
+
+### Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## 🔐 Variables d’environnement
+
+### Backend (.env)
+
+```
+PORT=5000
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+STRIPE_SECRET_KEY=sk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+CLIENT_URL=http://localhost:5173
+```
+
+### Frontend (.env)
+
+```
+VITE_API_URL=http://localhost:5000/api
+VITE_UPLOAD_URL=http://localhost:5000
+```
+
+---
+
+## 📦 Architecture
+
+```
+beatstore/
+│
+├── backend/
+│   ├── controllers/
+│   ├── routes/
+│   ├── models/
+│   └── server.js
+│
+└── frontend/
+    ├── components/
+    ├── pages/
+    ├── context/
+    └── services/
+```
+
+---
+
+## 🎯 Objectif du projet
+
+Ce projet a été développé pour :
+
+* Approfondir la stack MERN
+* Implémenter Stripe en production
+* Comprendre les webhooks
+* Maîtriser le déploiement fullstack
+* Construire un projet portfolio solide
