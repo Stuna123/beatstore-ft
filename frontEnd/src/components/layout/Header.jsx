@@ -104,19 +104,36 @@ const Header = () => {
           <Link onClick={() => setOpen(false)} to="/" className={navLinkClass("/")}> Accueil </Link>
           <Link onClick={() => setOpen(false)} to="/products" className={navLinkClass("/products")}> Produits </Link>
           <Link onClick={() => setOpen(false)} to="/cart" className={navLinkClass("/cart")}> Panier 🛒 </Link>
-          {isAuthentificated && ( <Link onClick={() => setOpen(false)} to="/dashboard" className={navLinkClass("/dashboard")}> Tableau de bord </Link> )}
-          {isAdmin && ( <Link onClick={() => setOpen(false)} to="/admin" className={navLinkClass("/admin")}> Admin </Link> )}
+
+          {isAuthentificated && (
+            <Link onClick={() => setOpen(false)} to="/dashboard" className={navLinkClass("/dashboard")}>
+              Tableau de bord
+            </Link>
+          )}
+
+          {isAdmin && (
+            <Link onClick={() => setOpen(false)} to="/admin" className={navLinkClass("/admin")}>
+              Admin
+            </Link>
+          )}
 
           {!isAuthentificated ? (
             <>
-              <Link to="/login" className={navLinkClass("/login")}>Connexion</Link>
-              <Link to="/register" className={navLinkClass("/register")}>Inscription</Link>
+              <Link onClick={() => setOpen(false)} to="/login" className={navLinkClass("/login")}>
+                Connexion
+              </Link>
+              <Link onClick={() => setOpen(false)} to="/register" className={navLinkClass("/register")}>
+                Inscription
+              </Link>
             </>
           ) : (
             <>
               <span className="block px-4 py-3 text-slate-400">{user.email}</span>
               <button
-                onClick={logout}
+                onClick={() => {
+                  logout();
+                  setOpen(false);
+                }}
                 className="w-full text-left px-4 py-3 text-red-500 hover:bg-slate-800"
               >
                 Déconnexion

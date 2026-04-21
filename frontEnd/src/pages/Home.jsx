@@ -12,6 +12,7 @@ function Home() {
 
         <Hero />
         <PromoBanner />
+        <FeaturedProducts />
         <WhyChooseUs />
         <Testimonials />
         <FinalCTA />
@@ -20,4 +21,4 @@ function Home() {
   )
 }
 
-export default Home
+export default Home;

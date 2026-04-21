@@ -4,31 +4,41 @@ import ProductCard from "../products/ProductCard";
 
 function FeaturedProducts() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchFeatured = async () => {
       try {
-        const res = await api.get("/products?limit=3");
-        setProducts(res.data.data || []);
-      } catch (e) {
-        console.error(e);
+        const res = await api.get("/products");
+        setProducts((res.data.data || []).slice(0, 3));
+      } catch (error) {
+        console.error("Erreur chargement produits mis en avant", error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetch();
+    fetchFeatured();
   }, []);
 
   return (
-    <section className="mb-16">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Produits populaires !
+    <section className="my-16">
+      <h2 className="text-2xl font-bold text-center mb-8">
+        Produits mis en avant
       </h2>
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {products.map((p) => (
-          <ProductCard key={p._id} product={p} />
-        ))}
-      </div>
+      {loading ? (
+        <p className="text-center text-gray-500">Chargement des produits...</p>
+      ) : products.length === 0 ? (
+        <p className="text-center text-gray-500">Aucun produit disponible.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {products.map((p) => (
+            <ProductCard key={p._id} product={p} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

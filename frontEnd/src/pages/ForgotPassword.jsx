@@ -1,50 +1,39 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
 import api from "../services/api";
-
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const isValidEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
-  }
-
-  /*
-    const handleSubmit = (e) => {
-      e.preventDefault();
-
-      if (!isValidEmail(email)) {
-        setError("Email invalide")
-        return;
-      }
-
-      // Backend plus tard
-      setError("");
-      setMessage("Un email de réinitialisation a été envoyé");
-    };
-  */
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if(!isValidEmail(email)) {
-      alert("L'email est invalide. Veuillez saisir correctement !")
+    setError("");
+    setMessage("");
+
+    if (!isValidEmail(email)) {
+      setError("L'email est invalide. Veuillez le saisir correctement.");
       return;
     }
 
     try {
+      setLoading(true);
       await api.post("/auth/forgot-password", { email });
-      setError("");
-      setMessage("L'email de réinitialisation a été envoyé");
+      setMessage("L'email de réinitialisation a été envoyé.");
     } catch (err) {
-      setError(err.response?.data?.message || "Erreur serveur");
+      setError(err.response?.data?.message || "Erreur serveur.");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -53,10 +42,8 @@ function ForgotPassword() {
           Mot de passe oublié
         </h1>
 
-        {error && <p className="text-red-600 mb-4"> {error} </p>}
-        {message && (
-          <p className="text-green-600 text-center mb-3">{message}</p>
-        )}
+        {error && <p className="text-red-600 mb-4">{error}</p>}
+        {message && <p className="text-green-600 text-center mb-3">{message}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -65,10 +52,14 @@ function ForgotPassword() {
             className="border p-2 w-full mb-4 dark:text-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
 
-          <button className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded">
-            Envoyer !
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded disabled:opacity-50"
+            disabled={loading}
+          >
+            {loading ? "Envoi..." : "Envoyer"}
           </button>
         </form>
 
